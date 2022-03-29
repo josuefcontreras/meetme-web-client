@@ -4,7 +4,7 @@ import { Button, Header, Icon, Segment } from "semantic-ui-react";
 
 export default function NotFound() {
   return (
-    <Segment placeholder>
+    <Segment placeholder style={{ minHeight: "100vh", margin: 0 }}>
       <Header icon>
         <Icon name="search" />
         Oops - we've looked everywhere and could not find this.

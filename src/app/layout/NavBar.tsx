@@ -1,5 +1,5 @@
-import { observer } from "mobx-react-lite";
 import React from "react";
+import { observer } from "mobx-react-lite";
 import { Link, NavLink } from "react-router-dom";
 import { Button, Container, Menu, Image, Dropdown, DropdownMenu } from "semantic-ui-react";
 import { useStore } from "../stores/store";
@@ -21,20 +21,10 @@ const NavBar = () => {
         </Menu.Item>
         {isLoggedIn && (
           <Menu.Item position="right">
-            <Image
-              src={user?.image || "/assets/user.png"}
-              avatar
-              spaced="right"
-              alt="profile image"
-            />
+            <Image src={user?.image || "/assets/user.png"} avatar spaced="right" alt="profile image" />
             <Dropdown pointing="top left" text={user?.displayName}>
               <DropdownMenu>
-                <Dropdown.Item
-                  as={Link}
-                  to={`/profiles/${user?.userName}`}
-                  text="My Profile"
-                  icon="user"
-                />
+                <Dropdown.Item as={Link} to={`/profiles/${user?.userName}`} text="My Profile" icon="user" />
                 <Dropdown.Item text="Logout" icon="power" onClick={logout} />
               </DropdownMenu>
             </Dropdown>
