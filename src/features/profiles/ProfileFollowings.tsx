@@ -6,7 +6,7 @@ import ProfileCard from "./ProfileCard";
 
 const ProfileFollowings = () => {
   const { profileStore } = useStore();
-  const { loadingFollowings, followings, profile, activeTab } = profileStore;
+  const { loadingFollowings, followings, activeTab } = profileStore;
   const predicate = activeTab === 3 ? "Followers" : activeTab === 4 ? "Following" : "";
 
   return (

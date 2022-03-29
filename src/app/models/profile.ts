@@ -7,8 +7,8 @@ export interface Photo {
 }
 
 export interface Profile {
-  userName?: string;
-  displayName?: string;
+  userName: string;
+  displayName: string;
   image?: string;
   bio?: string;
   photos?: Photo[];
@@ -24,4 +24,11 @@ export class Profile implements Profile {
     this.bio = "";
     this.image = user.image;
   }
+}
+
+export interface UserActivity {
+  id: string;
+  title: string;
+  category: string;
+  date: Date;
 }

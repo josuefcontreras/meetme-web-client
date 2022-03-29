@@ -1,13 +1,13 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import { history } from "../..";
 import { Activity, ActivityFormValues } from "../models/activity";
 import { LoginCredentials } from "../models/loginCredentials";
-import { Photo, Profile } from "../models/profile";
+import { PaginatedResult } from "../models/pagination";
+import { Photo, Profile, UserActivity } from "../models/profile";
 import { RegistrationFormValues } from "../models/registrationFormValues";
 import { User } from "../models/user";
 import { store } from "../stores/store";
-import sharp from "sharp";
 
 const sleep = (delay: number) => {
   return new Promise((resolve) => {
@@ -16,9 +16,17 @@ const sleep = (delay: number) => {
 };
 
 axios.defaults.baseURL = "https://localhost:5001/api";
+
 axios.interceptors.response.use(
   async (response) => {
     await sleep(1000);
+
+    const pagination = response.headers["pagination"];
+    if (pagination) {
+      response.data = new PaginatedResult(response.data, JSON.parse(pagination));
+      return response as AxiosResponse<PaginatedResult<any>>;
+    }
+
     return response;
   },
   (error: AxiosError) => {
@@ -55,6 +63,7 @@ axios.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
 axios.interceptors.request.use(function (config) {
   const token = window.localStorage.getItem("jwt");
   config.headers.Authorization = token ? `Bearer ${token}` : "";
@@ -64,14 +73,16 @@ axios.interceptors.request.use(function (config) {
 const responseBody = <T>(response: AxiosResponse<T>) => response.data;
 
 const requests = {
-  get: <T>(url: string) => axios.get<T>(url).then(responseBody),
+  get: <T>(url: string, config?: AxiosRequestConfig | undefined) =>
+    axios.get<T>(url, config).then(responseBody),
   post: <T>(url: string, body: {}) => axios.post<T>(url, body).then(responseBody),
   put: <T>(url: string, body: {}) => axios.put<T>(url, body).then(responseBody),
   del: <T>(url: string) => axios.delete<T>(url).then(responseBody),
 };
 
 const Activities = {
-  list: () => requests.get<Activity[]>("/activities"),
+  list: (params: URLSearchParams) =>
+    requests.get<PaginatedResult<Activity[]>>("/activities", { params }),
   details: (id: string) => requests.get<Activity>(`/activities/${id}`),
   create: (activity: ActivityFormValues) => requests.post<void>("/activities", activity),
   update: (activity: ActivityFormValues) =>
@@ -89,7 +100,6 @@ const Account = {
 const Profiles = {
   details: (userName: string) => requests.get<Profile>(`/profiles/${userName}`),
   uploadPhoto: async (file: Blob) => {
-    let resizedFile = await sharp({}).resize(100, 100);
     let formData = new FormData();
     formData.append("File", file);
     return axios.post<Photo>("photos", formData, {
@@ -98,9 +108,12 @@ const Profiles = {
   },
   setMainPhoto: (id: string) => requests.post<void>(`/photos/${id}/setMain`, {}),
   deletePhoto: (id: string) => requests.del<void>(`/photos/${id}`),
+  updateProfile: (profile: Partial<Profile>) => requests.put(`/profiles`, profile),
   updateFollowing: (userName: string) => requests.post<void>(`/follow/${userName}`, {}),
   listFollowings: (userName: string, predicate: string) =>
     requests.get<Profile[]>(`/follow/${userName}?predicate=${predicate}`),
+  listActivities: (username: string, params: URLSearchParams) =>
+    requests.get<PaginatedResult<UserActivity[]>>(`/profiles/${username}/activities`, { params }),
 };
 
 const agent = {

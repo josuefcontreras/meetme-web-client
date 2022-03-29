@@ -1,7 +1,7 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
-import sharp from "sharp";
 import agent from "../api/agent";
-import { Photo, Profile } from "../models/profile";
+import { Pagination, PagingParams } from "../models/pagination";
+import { Photo, Profile, UserActivity } from "../models/profile";
 import { store } from "./store";
 
 export default class ProfileStore {
@@ -13,6 +13,10 @@ export default class ProfileStore {
   loadingFollowings = false;
   followings: Profile[] = [];
   activeTab = 0;
+  userActivities: UserActivity[] = [];
+  loadingActivities = false;
+  userActivitiesPagination: Pagination | null = null;
+  userActivitiesPagingParams = new PagingParams(1, 12);
 
   constructor() {
     makeAutoObservable(this);
@@ -110,6 +114,23 @@ export default class ProfileStore {
     }
   };
 
+  updateProfile = async (profile: Partial<Profile>) => {
+    this.loading = true;
+    try {
+      await agent.Profiles.updateProfile(profile);
+      runInAction(() => {
+        if (profile.displayName && profile.displayName !== store.userStore.user?.displayName) {
+          store.userStore.setDisplayName(profile.displayName);
+        }
+        this.profile = { ...this.profile, ...(profile as Profile) };
+        this.loading = false;
+      });
+    } catch (error) {
+      console.log(error);
+      runInAction(() => (this.loading = false));
+    }
+  };
+
   updateFollowing = async (userName: string, following: boolean) => {
     this.loadingFollow = true;
     try {
@@ -158,6 +179,37 @@ export default class ProfileStore {
     } finally {
       runInAction(() => {
         this.loadingFollowings = false;
+      });
+    }
+  };
+
+  getAxiosParams(predicate: string) {
+    const params = new URLSearchParams();
+    params.append("pageNumber", this.userActivitiesPagingParams.pageNumber.toString());
+    params.append("pageSize", this.userActivitiesPagingParams.pageSize.toString());
+    params.append("predicate", predicate);
+    return params;
+  }
+
+  setPagingParams = (pagingParams: PagingParams) => {
+    this.userActivitiesPagingParams = pagingParams;
+  };
+
+  loadUserActivities = async (username: string, predicate?: string) => {
+    this.loadingActivities = true;
+    try {
+      const params = this.getAxiosParams(predicate!);
+      const result = await agent.Profiles.listActivities(username, params);
+
+      runInAction(() => {
+        this.userActivities = result.data;
+        this.userActivitiesPagination = result.pagination;
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      runInAction(() => {
+        this.loadingActivities = false;
       });
     }
   };
