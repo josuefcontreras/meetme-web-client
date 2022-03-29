@@ -15,11 +15,11 @@ const sleep = (delay: number) => {
   });
 };
 
-axios.defaults.baseURL = "https://localhost:5001/api";
+axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 
 axios.interceptors.response.use(
   async (response) => {
-    await sleep(1000);
+    if (process.env.NODE_ENV === "development") await sleep(1000);
 
     const pagination = response.headers["pagination"];
     if (pagination) {
@@ -73,20 +73,17 @@ axios.interceptors.request.use(function (config) {
 const responseBody = <T>(response: AxiosResponse<T>) => response.data;
 
 const requests = {
-  get: <T>(url: string, config?: AxiosRequestConfig | undefined) =>
-    axios.get<T>(url, config).then(responseBody),
+  get: <T>(url: string, config?: AxiosRequestConfig | undefined) => axios.get<T>(url, config).then(responseBody),
   post: <T>(url: string, body: {}) => axios.post<T>(url, body).then(responseBody),
   put: <T>(url: string, body: {}) => axios.put<T>(url, body).then(responseBody),
   del: <T>(url: string) => axios.delete<T>(url).then(responseBody),
 };
 
 const Activities = {
-  list: (params: URLSearchParams) =>
-    requests.get<PaginatedResult<Activity[]>>("/activities", { params }),
+  list: (params: URLSearchParams) => requests.get<PaginatedResult<Activity[]>>("/activities", { params }),
   details: (id: string) => requests.get<Activity>(`/activities/${id}`),
   create: (activity: ActivityFormValues) => requests.post<void>("/activities", activity),
-  update: (activity: ActivityFormValues) =>
-    requests.put<void>(`/activities/${activity.id}`, activity),
+  update: (activity: ActivityFormValues) => requests.put<void>(`/activities/${activity.id}`, activity),
   delete: (id: string) => requests.del<void>(`/activities/${id}`),
   attend: (id: string) => requests.post<void>(`/activities/${id}/attend`, {}),
 };
