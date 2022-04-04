@@ -1,15 +1,6 @@
 import React, { SyntheticEvent, useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import {
-  Tab,
-  Grid,
-  Header,
-  Card,
-  Image,
-  TabProps,
-  Pagination,
-  PaginationProps,
-} from "semantic-ui-react";
+import { Tab, Grid, Header, Card, Image, TabProps, Pagination, PaginationProps } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import { UserActivity } from "../../app/models/profile";
 import { format } from "date-fns";
@@ -25,19 +16,11 @@ const panes = [
 export default observer(function ProfileActivities() {
   const { profileStore } = useStore();
 
-  const {
-    loadUserActivities,
-    profile,
-    loadingActivities,
-    userActivities,
-    userActivitiesPagination,
-    setPagingParams,
-  } = profileStore;
+  const { loadUserActivities, profile, loadingActivities, userActivities, userActivitiesPagination, setPagingParams } =
+    profileStore;
 
   const [loadingNext, setLoadingNext] = useState(false);
-  const [activePaneKey, setActivePaneKey] = useState(
-    panes.filter((p) => p.pane.default)[0].pane.key
-  );
+  const [activePaneKey, setActivePaneKey] = useState(panes.filter((p) => p.pane.default)[0].pane.key);
 
   function handlePaginationChange(e: SyntheticEvent, data: PaginationProps) {
     setLoadingNext(true);
@@ -95,6 +78,7 @@ export default observer(function ProfileActivities() {
             firstItem={null}
             lastItem={null}
             siblingRange={1}
+            disabled={loadingNext}
           />
         </Grid.Column>
       </Grid>

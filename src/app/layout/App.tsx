@@ -1,6 +1,4 @@
 import React from "react";
-import { Container } from "semantic-ui-react";
-import NavBar from "./NavBar";
 import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
 import { observer } from "mobx-react-lite";
 import { Route, Switch, useLocation } from "react-router-dom";

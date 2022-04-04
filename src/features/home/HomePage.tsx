@@ -30,7 +30,7 @@ const HomePage = () => {
     const { openModal } = modalStore;
     return (
       <>
-        <Header as="h2" inverted content="Welcome to Reactivities" />
+        <Header as="h2" inverted content="Welcome to Rautly" />
         <Button
           size="huge"
           color="teal"
@@ -58,7 +58,7 @@ const HomePage = () => {
       <Container text>
         <Header as="h1" inverted>
           <Image size="massive" src="/assets/logo.png" alt="logo" style={{ marginBottom: 12 }} />
-          Reactivities
+          Rautly
         </Header>
         {isLoggedIn ? <LoggedInContent username={user!.userName} /> : <NonLoggedInContent />}
       </Container>
