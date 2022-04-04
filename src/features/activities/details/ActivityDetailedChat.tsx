@@ -14,7 +14,7 @@ interface Props {
 
 const ActivityDetailedChat = ({ activity }: Props) => {
   const { commentStore } = useStore();
-
+  const { comments } = commentStore;
   useEffect(() => {
     if (activity.id) commentStore.createHubConnection(activity.id);
     return () => {
@@ -74,10 +74,7 @@ const ActivityDetailedChat = ({ activity }: Props) => {
             <Comment key={comment.id}>
               <Comment.Avatar src={comment.image || "/assets/user.png"} />
               <Comment.Content>
-                <Comment.Author
-                  as={Link}
-                  to={comment.userName ? `/profiles/${comment.userName}` : "#"}
-                >
+                <Comment.Author as={Link} to={comment.userName ? `/profiles/${comment.userName}` : "#"}>
                   {comment.displayName || "user deleted"}
                 </Comment.Author>
                 <Comment.Metadata>
